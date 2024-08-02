@@ -1,0 +1,96 @@
+title "Benzene RT_TDDFT-PBE0 absorption spectrum"
+echo
+start temp
+##
+## Note: you are required to explicitly name the geometry
+##
+geometry "system" units angstroms nocenter noautoz noautosym
+ symmetry C2H
+ C  1.245202 -0.636975 0.000000
+ C  1.174237 0.759890 0.000000
+ C  -0.070965 1.396864 0.000000
+ C  -1.245202 0.636975 0.000000
+ C  -1.174237 -0.759890 0.000000
+ C  0.070965 -1.396864 0.000000
+ H  2.218010 -1.134605 0.000000
+ H  2.091602 1.353551 0.000000
+ H  -0.126408 2.488156 0.000000
+ H  -2.218010 1.134605 0.000000
+ H  -2.091602 -1.353551 0.000000
+ H  0.126408 -2.488156 0.000000
+end
+
+## Note: We need to explicitly set the "active" geometry even though there is only one geom.
+set geometry "system"
+
+## All DFT and basis parameters are inherited by the RT-TDDFT code
+basis
+ * library 6-31G
+end
+
+dft
+  xc pbe0
+end
+
+## Compute ground state of the system
+task dft energy
+
+##
+## Now, we compute an x, y, and z kick simulation, which we give separate "tags" for post-processing.
+##
+
+unset rt_tddft:*
+rt_tddft
+  tmax 200
+  dt .2
+
+  print dipole
+  tag "kick_x"
+
+  field "kick"
+    type delta
+    polarization x
+    max 0.001
+  end
+
+  excite "system" with "kick"
+ end
+task dft rt_tddft
+
+
+unset rt_tddft:*
+rt_tddft
+  tmax 200
+  dt .2
+
+  print dipole
+  tag "kick_y"
+
+  field "kick"
+    type delta
+    polarization y
+    max 0.001
+  end
+
+  excite "system" with "kick"
+ end
+task dft rt_tddft
+
+
+unset rt_tddft:*
+rt_tddft
+  tmax 200
+  dt .2
+
+  print dipole
+  tag "kick_z"
+
+  field "kick"
+    type delta
+    polarization z
+    max 0.001
+  end
+
+  excite "system" with "kick"
+ end
+task dft rt_tddft
